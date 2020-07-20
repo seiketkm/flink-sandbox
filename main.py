@@ -9,12 +9,22 @@ class main():
     t_config = TableConfig()
     t_env = BatchTableEnvironment.create(exec_env, t_config)
 
-    t_env.connect(FileSystem().path('./temp/input')) \
-        .with_format(OldCsv()
-                    .field('word', DataTypes.STRING())) \
-        .with_schema(Schema()
-                    .field('word', DataTypes.STRING())) \
-        .create_temporary_table('mySource')
+    # t_env.connect(FileSystem().path('./temp/deviceorientation')) \
+    #     .with_format(OldCsv()
+    #                 .field('word', DataTypes.STRING())) \
+    #     .with_schema(Schema()
+    #                 .field('word', DataTypes.STRING())) \
+    #     .create_temporary_table('mySource')
+    my_source_ddl = """
+        create table mySource (
+            word VARCHAR
+        ) with (
+            'connector.type' = 'filesystem',
+            'format.type' = 'csv',
+            'connector.path' = './temp/input'
+        )
+    """
+    t_env.sql_update(my_source_ddl)
 
     t_env.connect(FileSystem().path('/tmp/output')) \
         .with_format(OldCsv()
